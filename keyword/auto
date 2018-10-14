@@ -1,0 +1,84 @@
+# auto关键字
+
+在C++11中，auto关键字用于自动推导变量类型，推导的工作是由编译器在**编译期**实现的，它根据右值表达式推导出其应该是什么类型，建议表达式尽量简单，避免编译器推导类型错误(错误是指不符合程序员的预期)。
+
+
+有了自动推导类型的auto，程序写起来就方便多了，但是有时查bug就很头疼了，咱们写C++的就是要掌控一切，自动推导类型有点像脚本语言，有时就很难判断一个变量的类型，定位问题时也会很费时间。
+
+
+
+下面讲一些使用方法
+-----
+
+
+某些类型特难写，甚至不知怎么下手，auto能帮上忙。
+
+```
+// 保存lambda表达式
+auto f = [] (int i) {return i * i;};
+cout<< f(2) <<endl;
+```
+
+
+
+但是别太过分了，并不是啥都能用auto来声明的。
+
+```
+auto tmp;   // 错误，必须初始化
+
+int num = 10;
+auto type = decltype(num);  // 错误，auto只能替换现有的类型，不能自己造。
+```
+
+
+
+auto的推导可能不如预期，比如const、引用、指针等类型，是需要手动指明的。
+
+```
+const int a = 10;
+auto b = a; // 等同于 int b = a;
+const auto c = a; // 等同于 const int c = a;
+
+int d = 11;
+auto p = &d;    // 等同于 int *p = &d;
+auto cp = &a;   // 等同于 const int *cp = &a;
+const auto ccp = &a;    // 等同于 const int * const ccp = &a;
+auto const ccp = &a;    // 等同于 const int * const ccp = &a;
+
+int &e = d;
+auto g = e; // 等同于 int g = e;
+auto &gg = e;   // 等同于 int &gg = e;
+```
+
+
+还能用于函数的返回值，但是不能用于形数。
+
+```
+auto f()        // 错误，没有指定返回类型
+{
+    int a = 5;
+    return a * a;
+}
+
+auto f() -> int        // 正确，要auto何用~
+{
+    int a = 5;
+    return a * a;
+}
+
+auto f(auto a) -> int    // 错误，目前不能用于参数中，c++14才行
+{
+    return a * a;
+}
+```
+
+
+
+
+有些值得注意的地方。
+
+```
+int a = 5;
+auto b = a, c = "abc";  // 错误，等同于 int b = a, c = "abc";
+auto d = 1, *p = &a;    // 正确，等同于 int d =1, *p = &a;
+```
